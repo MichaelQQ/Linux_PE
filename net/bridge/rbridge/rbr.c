@@ -298,11 +298,13 @@ static int rbr_multidest_fwd(struct net_bridge_port *p,
 		rbr_node_put(adj);
 	}
 	rbr_node_put(dest);
+	rbr_node_put(sorc);
 
 	list_for_each_entry_safe(newptr, ptr, &sentlist.list, list){
 		list_del(&newptr->list);
 		kfree(newptr);
 	}
+	kfree(ptr);
 
 	/* if nicksave is false it means that copy will not be forwarded
 	 * as no availeble ajacency was found in such a case frame should

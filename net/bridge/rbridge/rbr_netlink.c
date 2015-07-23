@@ -80,6 +80,7 @@ int create_node(struct net_bridge_port *p, struct rbr *rbr,
 				new->isRemote = true;
 			}
 		}
+		free_netdev(dev);
 
 		/* avoid deleting node while it is been used for routing */
 		rcu_assign_pointer(rbr->rbr_nodes[rbr_ni->nick], new);
@@ -100,7 +101,6 @@ static int trill_cmd_set_nicks_info(struct sk_buff *skb, struct genl_info *info)
 	struct net *net = sock_net(skb->sk);
 	struct net_bridge_port *p = NULL;
 	int err = -EINVAL;
-	struct net_device *dev;
 
 	nla_memcpy(&rbr_ni, info->attrs[TRILL_ATTR_BIN], sizeof(rbr_ni));
 	if (!VALID_NICK(rbr_ni.nick))
