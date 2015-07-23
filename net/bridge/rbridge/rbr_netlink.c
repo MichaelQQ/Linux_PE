@@ -80,7 +80,7 @@ int create_node(struct net_bridge_port *p, struct rbr *rbr,
 				new->isRemote = true;
 			}
 		}
-		free_netdev(dev);
+		kfree(dev);
 
 		/* avoid deleting node while it is been used for routing */
 		rcu_assign_pointer(rbr->rbr_nodes[rbr_ni->nick], new);
