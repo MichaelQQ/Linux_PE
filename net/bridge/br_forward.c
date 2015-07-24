@@ -52,14 +52,15 @@ int br_dev_queue_push_xmit(struct sk_buff *skb)
 		kfree_skb(skb);
 	} 
 	else if(skb->dev->type == ARPHRD_MPLS_TUNNEL){
-        	struct sk_buff *vpls_skb = NULL;
-                vpls_skb = skb_copy(skb, GFP_ATOMIC);
-                if (vpls_skb) {
-                        if (vpls_skb->sk)
-                                skb_set_owner_w(vpls_skb, skb->sk);
+        	// struct sk_buff *vpls_skb = NULL;
+         //        vpls_skb = skb_copy(skb, GFP_ATOMIC);
+         //        if (vpls_skb) {
+                        // if (vpls_skb->sk)
+                        //         skb_set_owner_w(vpls_skb, skb->sk);
                         /* until we can pass the proto driver via mpls_output_shim
                          * we'll let it look it up for us based on skb->protocol */
-                        vpls_skb->protocol = htons(ETH_P_ALL);
+                        //vpls_skb->protocol = htons(ETH_P_ALL);
+                        skb->protocol = htons(ETH_P_ALL);
 
                         /* skb->mac.raw is where the L2 header begins, push
                          * the SKB to make skb->data == skb->mac.raw, then
@@ -70,13 +71,15 @@ int br_dev_queue_push_xmit(struct sk_buff *skb)
                         
                         //skb_push(vpls_skb, vpls_skb->data - (vpls_skb->head + vpls_skb->mac_header));
 			//vpls_skb->network_header = vpls_skb->mac_header;
-			vpls_skb->mac_header = vpls_skb->network_header;
+			//vpls_skb->mac_header = vpls_skb->network_header;
+			skb->mac_header = skb->network_header;
                         //if(vpls_skb->input_dev->type==ARPHRD_MPLS_TUNNEL)
                                 //kfree_skb(vpls_skb);//If STP enable; this code should be marked. 
                                 //Enable Split Horizon  mechanism
                         //else
-                        mpls_tunnel_xmit(vpls_skb,vpls_skb->dev);
-                }
+                        //mpls_tunnel_xmit(vpls_skb,vpls_skb->dev);
+                        mpls_tunnel_xmit(skb, skb->dev);
+                // }
         }
 	else {
 		skb_push(skb, ETH_HLEN);

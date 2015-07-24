@@ -801,10 +801,7 @@ rx_handler_result_t rbr_handle_frame(struct sk_buff **pskb)
 	struct sk_buff *skb = *pskb;
 	u16 vid = 0;
 
-	struct trill_hdr *trh;
-	struct rbr *rbr;
 	struct rbr_node *dest = NULL;
-	struct ethhdr *outerethhdr;
 
 	p = br_port_get_rcu(skb->dev);
 	if (unlikely(!p))
@@ -824,17 +821,13 @@ rx_handler_result_t rbr_handle_frame(struct sk_buff **pskb)
 		if(strncmp(p->dev->name, "mpls", 4) == 0){
 			//pr_warn_ratelimited("packet form %s\n", p->dev->name);
 
-	        trh = (struct trill_hdr *)skb->data;
-	        rbr = p->br->rbr;
-	        dest = rbr_find_node(rbr, trh->th_ingressnick);
+	        dest = rbr_find_node(p->br->rbr, ((struct trill_hdr *)skb->data)->th_ingressnick);
 	        if (unlikely(dest == NULL)) {
 				pr_warn_ratelimited("rbr_recv: mulicast  with unknown destination\n");
 				goto drop;
 			}
-
-	        outerethhdr = eth_hdr(skb);
 		    // /* change outer ether header */
-		    memcpy(outerethhdr->h_source, dest->rbr_ni->adjsnpa, ETH_ALEN);
+		    memcpy((eth_hdr(skb))->h_source, dest->rbr_ni->adjsnpa, ETH_ALEN);
 
 		    rbr_node_put(dest);
     	}
